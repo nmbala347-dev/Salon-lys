@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ly's Beauty Touch – Réservation</title>
+<style>
+:root{--bg:#fbf6f3;--ink:#2a1620;--ac:#8e2c57;--soft:#f0dde5;--gold:#b8893b;--line:#e3d3d9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+header{padding:22px 18px 14px;background:var(--ink);color:#fff}
+h1{margin:0;font:700 24px Georgia,serif}
+header p{margin:4px 0 0;color:#e8c9d6;font-size:14px}
+nav{display:flex;position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line)}
+nav button{flex:1;padding:14px 4px;border:0;background:none;font:600 14px system-ui;color:#7a6570}
+nav button.on{color:var(--ac);box-shadow:inset 0 -3px var(--ac)}
+main{padding:16px;max-width:560px;margin:auto}
+section{display:none}section.on{display:block}
+h2{font:700 20px Georgia,serif;margin:6px 0 12px}
+.svc{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px}
+.svc input{width:22px;height:22px;accent-color:var(--ac)}
+.svc div{flex:1}.svc small{color:#7a6570}
+.svc b{color:var(--ac)}
+.bar{position:sticky;bottom:0;background:var(--soft);padding:12px;border-radius:10px;margin-top:12px;display:flex;justify-content:space-between;align-items:center}
+label{display:block;font-weight:600;margin:12px 0 4px;font-size:14px}
+input[type=text],input[type=tel],input[type=date],select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:16px system-ui;background:#fff}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slots button{padding:10px 0;border:1px solid var(--line);border-radius:8px;background:#fff;font:15px system-ui}
+.slots button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.slots button:disabled{background:#eee;color:#aaa;text-decoration:line-through}
+.go{width:100%;padding:15px;margin-top:16px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:700 16px system-ui}
+.box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:12px}
+.note{font-size:13px;color:#7a6570;margin-top:8px}
+.steps{list-style:none;padding:0;margin:8px 0 0}
+.steps li{padding:6px 0 6px 26px;position:relative;color:#aaa}
+.steps li:before{content:"";position:absolute;left:4px;top:11px;width:12px;height:12px;border-radius:50%;border:2px solid #ccc}
+.steps li.done{color:var(--ink)}.steps li.done:before{background:var(--gold);border-color:var(--gold)}
+.err{color:#b00020;font-size:14px;margin-top:8px}
+</style>
+</head>
+<body>
+<header><h1>Ly's Beauty Touch</h1><p>Salon · Spa · Couture – Gombe, Kinshasa</p></header>
+<nav>
+<button class="on" data-t="soins">Soins</button>
+<button data-t="resa">Réserver</button>
+<button data-t="cout">Couture</button>
+<button data-t="suivi">Suivi</button>
+</nav>
+<main>
+
+<section id="soins" class="on">
+<h2>Choisissez vos soins</h2>
+<div id="liste"></div>
+<div class="bar"><span id="rec">Aucun soin choisi</span><b id="tot">0 $</b></div>
+<button class="go" onclick="show('resa')">Choisir ma date</button>
+<p class="note">Pour un mariage ou une cérémonie, cochez plusieurs soins : vous réservez tout en une fois.</p>
+</section>
+
+<section id="resa">
+<h2>Votre rendez-vous</h2>
+<div class="box" id="resume">Choisissez d'abord vos soins.</div>
+<label>Date</label><input type="date" id="date">
+<label>Heure</label><div class="slots" id="slots"></div>
+<label>Votre nom</label><input type="text" id="nom" placeholder="Ex : Grace Mbuyi">
+<label>Votre numéro WhatsApp</label><input type="tel" id="tel" placeholder="+243 ...">
+<label>Paiement de l'acompte</label>
+<select id="pay"><option>M-Pesa</option><option>Airtel Money</option><option>Orange Money</option><option>Sur place</option></select>
+<p class="note" id="acompte"></p>
+<div class="err" id="err1"></div>
+<button class="go" onclick="reserver()">Confirmer sur WhatsApp</button>
+</section>
+
+<section id="cout">
+<h2>Commande de couture sur mesure</h2>
+<label>Type de tenue</label>
+<select id="ctype"><option>Robe de cérémonie</option><option>Tenue de mariage</option><option>Ensemble pagne</option><option>Costume</option><option>Autre</option></select>
+<label>Date de l'événement</label><input type="date" id="cdate">
+<label>Tour de poitrine (cm)</label><input type="tel" id="m1">
+<label>Tour de taille (cm)</label><input type="tel" id="m2">
+<label>Tour de hanches (cm)</label><input type="tel" id="m3">
+<label>Détails (couleur, modèle, tissu)</label><textarea id="cnote" rows="3"></textarea>
+<label>Votre nom</label><input type="text" id="cnom">
+<label>Votre numéro WhatsApp</label><input type="tel" id="ctel" placeholder="+243 ...">
+<div class="err" id="err2"></div>
+<button class="go" onclick="commander()">Envoyer ma commande</button>
+</section>
+
+<section id="suivi">
+<h2>Suivre ma commande</h2>
+<label>Code reçu (ex : COU-4821)</label><input type="text" id="code">
+<button class="go" onclick="suivre()">Voir l'avancement</button>
+<div id="res"></div>
+</section>
+
+</main>
+<script>
+/* ====== À MODIFIER ====== */
+const WHATSAPP = "243800000000";   // numéro du salon, sans + ni espaces
+const ACOMPTE = 0.3;               // 30 % d'acompte
+const HEURES = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
+const SOINS = [
+ {n:"Coiffure simple",p:30,m:60},
+ {n:"Coiffure de cérémonie",p:60,m:120},
+ {n:"Maquillage simple",p:25,m:45},
+ {n:"Maquillage artistique / mariée",p:70,m:90},
+ {n:"Massage relaxant",p:50,m:60},
+ {n:"Soin du visage",p:40,m:45},
+ {n:"Manucure / pédicure",p:25,m:60}
+];
+const ETAPES = ["Commande reçue","Mesures validées","Coupe du tissu","Couture","Essayage","Prête à retirer"];
+/* ======================== */
+
+const $ = id => document.getElementById(id);
+let choix = [], heure = "";
+const get = k => { try { return JSON.parse(localStorage.getItem(k)) || [] } catch(e){ return [] } };
+const set = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch(e){} };
+
+function show(t){
+ document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id===t));
+ document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t===t));
+ if(t==="resa") majResa();
+ scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => show(b.dataset.t));
+
+/* Soins */
+$("liste").innerHTML = SOINS.map((s,i) =>
+ `<label class="svc"><input type="checkbox" onchange="coche(${i},this.checked)"><div>${s.n}<br><small>${s.m} min</small></div><b>${s.p} $</b></label>`).join("");
+function coche(i,on){
+ choix = on ? [...choix,i] : choix.filter(x => x!==i);
+ const t = total(), m = choix.reduce((a,i)=>a+SOINS[i].m,0);
+ $("tot").textContent = t + " $";
+ $("rec").textContent = choix.length ? choix.length+" soin(s) · "+m+" min" : "Aucun soin choisi";
+}
+const total = () => choix.reduce((a,i)=>a+SOINS[i].p,0);
+
+/* Réservation */
+$("date").min = new Date().toISOString().slice(0,10);
+$("date").onchange = majSlots;
+function majResa(){
+ if(!choix.length){ $("resume").textContent = "Choisissez d'abord vos soins."; return }
+ $("resume").innerHTML = choix.map(i=>SOINS[i].n).join("<br>") + `<br><b>Total : ${total()} $</b>`;
+ $("acompte").textContent = "Acompte à payer : " + Math.round(total()*ACOMPTE) + " $";
+ majSlots();
+}
+function majSlots(){
+ const d = $("date").value, pris = get("resa").filter(r => r.date===d).map(r => r.heure);
+ heure = "";
+ $("slots").innerHTML = HEURES.map(h =>
+  `<button ${pris.includes(h)?"disabled":""} onclick="pick(this,'${h}')">${h}</button>`).join("");
+}
+function pick(b,h){
+ heure = h;
+ document.querySelectorAll(".slots button").forEach(x => x.classList.remove("on"));
+ b.classList.add("on");
+}
+function reserver(){
+ const nom = $("nom").value.trim(), tel = $("tel").value.trim(), d = $("date").value;
+ if(!choix.length) return $("err1").textContent = "Choisissez au moins un soin.";
+ if(!d || !heure) return $("err1").textContent = "Choisissez une date et une heure.";
+ if(nom.length < 2 || tel.replace(/\D/g,"").length < 9) return $("err1").textContent = "Indiquez votre nom et un numéro valide.";
+ $("err1").textContent = "";
+ const l = get("resa"); l.push({date:d,heure,nom,tel}); set("resa",l);
+ const msg = `Bonjour, je souhaite réserver.\nNom : ${nom}\nTél : ${tel}\nDate : ${d} à ${heure}\nSoins : ${choix.map(i=>SOINS[i].n).join(", ")}\nTotal : ${total()} $\nAcompte (${$("pay").value}) : ${Math.round(total()*ACOMPTE)} $`;
+ window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg), "_blank");
+ majSlots();
+}
+
+/* Couture */
+function commander(){
+ const nom=$("cnom").value.trim(), tel=$("ctel").value.trim();
+ if(nom.length<2 || tel.replace(/\D/g,"").length<9) return $("err2").textContent="Indiquez votre nom et un numéro valide.";
+ if(!$("cdate").value) return $("err2").textContent="Indiquez la date de l'événement.";
+ $("err2").textContent="";
+ const code = "COU-" + Math.floor(1000+Math.random()*9000);
+ const l = get("cout");
+ l.push({code,etape:0,nom,tel,type:$("ctype").value});
+ set("cout",l);
+ const msg = `Nouvelle commande couture ${code}\nNom : ${nom}\nTél : ${tel}\nTenue : ${$("ctype").value}\nÉvénement : ${$("cdate").value}\nMesures (cm) – poitrine ${$("m1").value}, taille ${$("m2").value}, hanches ${$("m3").value}\nDétails : ${$("cnote").value}`;
+ window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg), "_blank");
+ $("code").value = code; show("suivi"); suivre();
+}
+function suivre(){
+ const c = $("code").value.trim().toUpperCase(), o = get("cout").find(x => x.code===c);
+ if(!o) return $("res").innerHTML = `<p class="err">Code introuvable. Vérifiez-le ou contactez le salon.</p>`;
+ $("res").innerHTML = `<div class="box"><b>${o.type}</b> pour ${o.nom}<ul class="steps">` +
+  ETAPES.map((e,i)=>`<li class="${i<=o.etape?"done":""}">${e}</li>`).join("") + `</ul></div>`;
+}
+</script>
+</body>
+</html>
